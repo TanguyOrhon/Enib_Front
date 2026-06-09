@@ -84,12 +84,22 @@ function sortList(column: Columns, order: Order) {
       col = 'releaseDate'
       break
   }
-  listbook.value = listbook.value.sort((a, b) => {
-    if (order == Order.ASC) {
-      return a[col] > b[col] ? 1 : -1
-    } else {
-      return a[col] > b[col] ? -1 : 1
+
+  const compare = (a: Book, b: Book) => {
+    if (column === Columns.DATE) {
+      const aDate = new Date(a.releaseDate).getTime()
+      const bDate = new Date(b.releaseDate).getTime()
+      return aDate - bDate
     }
+
+    const aValue = String(a[col]).toLowerCase()
+    const bValue = String(b[col]).toLowerCase()
+    return aValue.localeCompare(bValue)
+  }
+
+  listbook.value = listbook.value.slice().sort((a, b) => {
+    const result = compare(a, b)
+    return order === Order.ASC ? result : -result
   })
 }
 
