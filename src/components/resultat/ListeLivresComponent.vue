@@ -11,7 +11,11 @@
         <div class="select-wrapper">
           <input type="checkbox" class="select" />
         </div>
-        <CardBookComponent :book="book" @update-book="openBookModal" />
+        <CardBookComponent
+          :book="book"
+          @update-book="openBookModal"
+          @delete-book="openDeleteModal"
+        />
       </div>
     </div>
     <div v-else-if="isReady && listbook.length < 1" class="nobook_msg">
@@ -30,6 +34,7 @@
       @change-items-per-page="changeItemsPerPage"
     />
     <EditModal ref="edit" @on-save="saveBookInList" />
+    <DeleteBookModal ref="deleteModal" @deleted="deleteBookFromList" />
   </div>
 </template>
 
@@ -43,6 +48,7 @@ import { Columns } from '@/types/Columns'
 import { Order } from '@/types/Order'
 import { FaceFrownIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import EditModal from '../EditModal.vue'
+import DeleteBookModal from '../DeleteBookModal.vue'
 
 const listbook = ref<Array<Book>>([])
 const isReady = ref<boolean>(false)
@@ -51,6 +57,7 @@ const itemsPerPage = ref<number>(20)
 const currentPage = ref<number>(1)
 const totalPages = computed(() => Math.max(1, Math.ceil(listbook.value.length / itemsPerPage.value)))
 const edit = ref<null | InstanceType<typeof EditModal>>()
+const deleteModal = ref<null | InstanceType<typeof DeleteBookModal>>()
 
 const bookShown = computed(() =>
   listbook.value.slice(
@@ -85,6 +92,10 @@ function openCreateModal() {
   edit.value?.openModal(null)
 }
 
+function openDeleteModal(book: Book) {
+  deleteModal.value?.openModal(book)
+}
+
 function saveBookInList(savedBook: Book) {
   const bookIndex = listbook.value.findIndex((book) => book.id == savedBook.id)
 
@@ -94,6 +105,11 @@ function saveBookInList(savedBook: Book) {
     listbook.value.unshift(savedBook)
     currentPage.value = 1
   }
+  keepCurrentPageValid()
+}
+
+function deleteBookFromList(deletedBook: Book) {
+  listbook.value = listbook.value.filter((book) => book.id != deletedBook.id)
   keepCurrentPageValid()
 }
 

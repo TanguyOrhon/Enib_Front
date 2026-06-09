@@ -5,8 +5,16 @@
     <div class="date">{{ book.releaseDate }}</div>
     <div class="note">{{ note }} <StarIcon v-if="book.rating" class="icons" /></div>
     <div class="link">
-      <button @click="updateBook">
+      <button type="button" aria-label="Modifier le livre" @click="updateBook">
         <PencilIcon class="icon" />
+      </button>
+      <button
+        class="delete-card-button"
+        type="button"
+        aria-label="Supprimer le livre"
+        @click="requestDeleteBook"
+      >
+        <TrashIcon class="icon" />
       </button>
     </div>
     <BookModal v-if="showDetails" ref="modal" @on-save="onSave" />
@@ -17,7 +25,7 @@
 import { Book } from '@/types/Book'
 import { ref, useTemplateRef } from 'vue'
 import BookModal from '../BookModal.vue'
-import { PencilIcon } from '@heroicons/vue/24/solid'
+import { PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import { StarIcon } from '@heroicons/vue/24/outline'
 import { noteTo3Dec } from '@/utils/Methods'
 
@@ -33,11 +41,16 @@ function updateBook() {
   emits('updateBook', props.book)
 }
 
+function requestDeleteBook() {
+  emits('deleteBook', props.book)
+}
+
 async function onSave(newNote: string) {
   note.value = newNote
 }
 
 const emits = defineEmits<{
   (e: 'updateBook', book: Book): void
+  (e: 'deleteBook', book: Book): void
 }>()
 </script>
