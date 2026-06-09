@@ -87,3 +87,8 @@ export async function updateBook(book: Book) {
     return null
   }
 }
+
+export async function deleteBook(id: number): Promise<boolean> {
+  const resp = await axios.delete(base + '/id/' + id)
+  return resp.status >= 200 && resp.status < 300
+}

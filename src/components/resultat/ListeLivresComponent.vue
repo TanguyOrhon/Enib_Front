@@ -8,7 +8,11 @@
         <div class="select-wrapper">
           <input type="checkbox" class="select" />
         </div>
-        <CardBookComponent :book="book" @update-book="openBookModal" />
+        <CardBookComponent
+          :book="book"
+          @update-book="openBookModal"
+          @delete-book="openDeleteConfirmation"
+        />
       </div>
     </div>
     <div v-else-if="isReady && listbook.length < 1" class="nobook_msg">
@@ -26,19 +30,25 @@
       @change-page-size="changePageSize"
     />
     <EditModal ref="edit" @book-saved="loadBooks" />
+    <DeleteConfirmationModal
+      :book="bookToDelete"
+      @cancel="cancelDelete"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { Book } from '@/types/Book'
-import { getBookdWithAuthor, getBooks } from '@/utils/Api'
+import { deleteBook, getBookdWithAuthor, getBooks } from '@/utils/Api'
 import CardBookComponent from './CardBookComponent.vue'
 import PaginationComponent from './PaginationComponent.vue'
 import { Columns } from '@/types/Columns'
 import { Order } from '@/types/Order'
 import { FaceFrownIcon } from '@heroicons/vue/24/outline'
 import EditModal from '../EditModal.vue'
+import DeleteConfirmationModal from '../DeleteConfirmationModal.vue'
 
 const listbook = ref<Array<Book>>([])
 const isReady = ref<boolean>(false)
@@ -46,6 +56,7 @@ const pageSize = ref<number>(20)
 const page = ref<number>(1)
 const pageMax = computed(() => Math.ceil(listbook.value.length / pageSize.value))
 const edit = ref<null | InstanceType<typeof EditModal>>()
+const bookToDelete = ref<Book | null>(null)
 
 const bookShown = computed(() =>
   listbook.value.slice(pageSize.value * (page.value - 1), pageSize.value * page.value)
@@ -82,6 +93,29 @@ function openCreateModal() {
     rating: 0,
     sales: 0
   })
+}
+
+function openDeleteConfirmation(book: Book) {
+  bookToDelete.value = book
+}
+
+function cancelDelete() {
+  bookToDelete.value = null
+}
+
+async function confirmDelete() {
+  if (!bookToDelete.value) {
+    return
+  }
+
+  const deletedBookId = bookToDelete.value.id
+  const isDeleted = await deleteBook(deletedBookId)
+
+  if (isDeleted) {
+    listbook.value = listbook.value.filter((book) => book.id !== deletedBookId)
+    page.value = Math.min(page.value, Math.max(pageMax.value, 1))
+    bookToDelete.value = null
+  }
 }
 
 async function loadBooksWithAuthor(author: string) {
