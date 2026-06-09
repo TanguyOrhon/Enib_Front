@@ -75,22 +75,23 @@ function changePage(newPage: number) {
 }
 
 function sortList(column: Columns, order: Order) {
-  let col: keyof Book = 'title'
-  switch (column) {
-    case Columns.TITLE:
-      col = 'title'
-      break
-    case Columns.DATE:
-      col = 'releaseDate'
-      break
-  }
-  listbook.value = listbook.value.sort((a, b) => {
-    if (order == Order.ASC) {
-      return a[col] > b[col] ? 1 : -1
-    } else {
-      return a[col] > b[col] ? -1 : 1
+  listbook.value = [...listbook.value].sort((a, b) => {
+    let comparison = 0
+
+    switch (column) {
+      case Columns.TITLE:
+        comparison = a.title.localeCompare(b.title)
+        break
+
+      case Columns.DATE:
+        comparison = new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()
+        break
     }
+
+    return order === Order.ASC ? comparison : -comparison
   })
+
+  page.value = 1
 }
 
 defineExpose({ sortList, loadBooksWithAuthor, loadBooks })
