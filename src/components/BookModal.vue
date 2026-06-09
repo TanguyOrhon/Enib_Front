@@ -18,7 +18,7 @@
                   <div class="infos-legend">Catégorie</div>
                   <div class="infos-value">
                     <div class="pills-wrapper">
-                      <PillComponent v-for="cat in book?.genre" :key="cat">
+                      <PillComponent v-for="cat in book?.genre" :key="cat" :category="cat">
                         {{ cat }}
                       </PillComponent>
                     </div>
