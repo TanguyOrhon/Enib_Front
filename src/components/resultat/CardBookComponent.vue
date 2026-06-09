@@ -2,7 +2,7 @@
   <div class="card-wrapper">
     <div class="title">{{ book.title }}</div>
     <div class="author">{{ book.author }}</div>
-    <div class="date">{{ book.releaseDate }}</div>
+    <div class="date">{{ formatReleaseYear(book.releaseDate) }}</div>
     <div class="note">{{ note }} <StarIcon v-if="book.rating" class="icons" /></div>
     <div class="link">
       <button title="Modifier le livre" @click="updateBook">
@@ -38,6 +38,15 @@ function updateBook() {
 
 function deleteBook() {
   emits('deleteBook', props.book)
+}
+
+function formatReleaseYear(releaseDate: string) {
+  if (!releaseDate) {
+    return ''
+  }
+
+  const year = releaseDate.match(/^(\d{4})/)?.[1]
+  return year ?? ''
 }
 
 async function onSave(newNote: string) {
