@@ -2,7 +2,7 @@
   <div class="card-wrapper">
     <div class="title">{{ book.title }}</div>
     <div class="author">{{ book.author }}</div>
-    <div class="date">{{ book.releaseDate }}</div>
+    <div class="date">{{ releaseYear }}</div>
     <div class="categories">
       <PillComponent v-for="cat in book.genre" :key="cat" :category="cat">
         {{ cat }}
@@ -28,11 +28,11 @@
 
 <script setup lang="ts">
 import { Book } from '@/types/Book'
-import { ref, useTemplateRef } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import BookModal from '../BookModal.vue'
 import { PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import { StarIcon } from '@heroicons/vue/24/outline'
-import { noteTo3Dec } from '@/utils/Methods'
+import { formatReleaseYear, noteTo3Dec } from '@/utils/Methods'
 import PillComponent from '../commons/PillComponent.vue'
 
 const props = defineProps<{
@@ -42,6 +42,7 @@ const props = defineProps<{
 const showDetails = ref<boolean>(true)
 const modal = useTemplateRef('modal')
 const note = ref<string>(props.book.rating != undefined ? noteTo3Dec(props.book.rating) : 'NN')
+const releaseYear = computed(() => formatReleaseYear(props.book.releaseDate))
 
 function updateBook() {
   emits('updateBook', props.book)
