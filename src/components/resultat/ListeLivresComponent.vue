@@ -17,7 +17,14 @@
       </div>
       <p>Aucune référence ne coïncide avec votre recherche</p>
     </div>
-    <PaginationComponent v-if="pageMax > 1" :page-max="pageMax" @change-page="changePage" />
+    <PaginationComponent
+      v-if="listbook.length > 0"
+      :page="page"
+      :page-max="pageMax"
+      :page-size="pageSize"
+      @change-page="changePage"
+      @change-page-size="changePageSize"
+    />
     <EditModal ref="edit" @book-saved="loadBooks" />
   </div>
 </template>
@@ -35,13 +42,13 @@ import EditModal from '../EditModal.vue'
 
 const listbook = ref<Array<Book>>([])
 const isReady = ref<boolean>(false)
-const nb_book_shown = ref<number>(10)
+const pageSize = ref<number>(20)
 const page = ref<number>(1)
-const pageMax = computed(() => Math.ceil(listbook.value.length / nb_book_shown.value))
+const pageMax = computed(() => Math.ceil(listbook.value.length / pageSize.value))
 const edit = ref<null | InstanceType<typeof EditModal>>()
 
 const bookShown = computed(() =>
-  listbook.value.slice(nb_book_shown.value * (page.value - 1), nb_book_shown.value * page.value)
+  listbook.value.slice(pageSize.value * (page.value - 1), pageSize.value * page.value)
 )
 
 onMounted(() => {
@@ -51,6 +58,7 @@ onMounted(() => {
 
 const loadBooks = async () => {
   isReady.value = false
+  page.value = 1
   const resp = await getBooks()
   if (resp != null) {
     listbook.value = resp
@@ -78,6 +86,7 @@ function openCreateModal() {
 
 async function loadBooksWithAuthor(author: string) {
   isReady.value = false
+  page.value = 1
   const resp = await getBookdWithAuthor(author)
   if (resp != null) {
     listbook.value = resp
@@ -88,6 +97,11 @@ async function loadBooksWithAuthor(author: string) {
 
 function changePage(newPage: number) {
   page.value = newPage
+}
+
+function changePageSize(newPageSize: number) {
+  pageSize.value = newPageSize
+  page.value = 1
 }
 
 function sortList(column: Columns, order: Order) {

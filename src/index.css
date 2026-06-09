@@ -206,7 +206,19 @@ hr {
 
 /* Pager */
 .pager-wrapper {
-  @apply flex justify-end text-gray-700;
+  @apply flex justify-end items-center gap-2 text-gray-700;
+}
+
+.page-size-wrapper {
+  @apply flex items-center gap-2 mr-3;
+}
+
+.page-size-select {
+  @apply px-2 py-1 rounded-md bg-white border border-gray-300;
+}
+
+.pager-button {
+  @apply p-1 rounded-md hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed;
 }
 
 .icon-header-btn {

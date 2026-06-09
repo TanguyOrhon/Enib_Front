@@ -1,10 +1,20 @@
 <template>
   <div class="pager-wrapper">
-    <button :disabled="page === 1" @click="pageDown">
+    <label class="page-size-wrapper">
+      Livres par page
+      <select
+        class="page-size-select"
+        :value="pageSize"
+        @change="changePageSize"
+      >
+        <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
+      </select>
+    </label>
+    <button class="pager-button" :disabled="page === 1" @click="changePage(page - 1)">
       <ChevronLeftIcon class="icons" />
     </button>
-    <div>{{ page }} / {{ pageMax }}</div>
-    <button :disabled="page === pageMax" @click="pageUp">
+    <div>Page {{ page }} / {{ pageMax }}</div>
+    <button class="pager-button" :disabled="page === pageMax" @click="changePage(page + 1)">
       <ChevronRightIcon class="icons" />
     </button>
   </div>
@@ -12,25 +22,27 @@
 
 <script setup lang="ts">
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid'
-import { ref } from 'vue'
 
-defineProps<{
+const props = defineProps<{
+  page: number
   pageMax: number
+  pageSize: number
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   (e: 'changePage', page: number): void
+  (e: 'changePageSize', pageSize: number): void
 }>()
 
-const page = ref<number>(1)
+const pageSizes = [20, 50, 100]
 
-function pageUp() {
-  page.value++
-  emits('changePage', page.value)
+function changePage(newPage: number) {
+  if (newPage >= 1 && newPage <= props.pageMax) {
+    emit('changePage', newPage)
+  }
 }
 
-function pageDown() {
-  page.value--
-  emits('changePage', page.value)
+function changePageSize(event: Event) {
+  emit('changePageSize', Number((event.target as HTMLSelectElement).value))
 }
 </script>
