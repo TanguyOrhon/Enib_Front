@@ -210,7 +210,31 @@ hr {
 
 /* Pager */
 .pager-wrapper {
-  @apply flex justify-end text-gray-700;
+  @apply mt-4 flex items-center justify-between gap-4 rounded-lg bg-white px-4 py-3 text-gray-700 shadow-md;
+}
+
+.page-size-wrapper {
+  @apply flex items-center gap-2 text-sm font-semibold;
+}
+
+.page-size-label {
+  @apply text-gray-600;
+}
+
+.page-size-select {
+  @apply rounded-md border border-gray-300 bg-gray-enib-light px-3 py-1 text-gray-800 focus:border-orange-enib focus:outline-none;
+}
+
+.page-controls {
+  @apply flex items-center gap-3;
+}
+
+.pager-button {
+  @apply flex h-9 w-9 items-center justify-center rounded-md bg-orange-enib text-white hover:bg-orange-enib-light disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500;
+}
+
+.page-indicator {
+  @apply min-w-28 text-center text-sm font-bold;
 }
 
 .icon-header-btn {
@@ -293,6 +317,15 @@ hr {
 
   .modal-footer {
     @apply flex-col-reverse;
+  }
+
+  .pager-wrapper {
+    @apply flex-col items-stretch;
+  }
+
+  .page-size-wrapper,
+  .page-controls {
+    @apply justify-between;
   }
 }
 
