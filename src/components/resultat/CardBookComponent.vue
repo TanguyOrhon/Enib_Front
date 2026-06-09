@@ -10,6 +10,14 @@
     </div>
     <div class="note">{{ note }} <StarIcon v-if="book.rating" class="icons" /></div>
     <div class="link">
+      <button
+        class="view-card-button"
+        type="button"
+        aria-label="Voir les détails du livre"
+        @click="viewBook"
+      >
+        <EyeIcon class="icon" />
+      </button>
       <button type="button" aria-label="Modifier le livre" @click="updateBook">
         <PencilIcon class="icon" />
       </button>
@@ -22,15 +30,13 @@
         <TrashIcon class="icon" />
       </button>
     </div>
-    <BookModal v-if="showDetails" ref="modal" @on-save="onSave" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Book } from '@/types/Book'
-import { computed, ref, useTemplateRef } from 'vue'
-import BookModal from '../BookModal.vue'
-import { PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
+import { computed, ref } from 'vue'
+import { EyeIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import { StarIcon } from '@heroicons/vue/24/outline'
 import { formatReleaseYear, noteTo3Dec } from '@/utils/Methods'
 import PillComponent from '../commons/PillComponent.vue'
@@ -39,10 +45,12 @@ const props = defineProps<{
   book: Book
 }>()
 
-const showDetails = ref<boolean>(true)
-const modal = useTemplateRef('modal')
 const note = ref<string>(props.book.rating != undefined ? noteTo3Dec(props.book.rating) : 'NN')
 const releaseYear = computed(() => formatReleaseYear(props.book.releaseDate))
+
+function viewBook() {
+  emits('viewBook', props.book)
+}
 
 function updateBook() {
   emits('updateBook', props.book)
@@ -52,11 +60,8 @@ function requestDeleteBook() {
   emits('deleteBook', props.book)
 }
 
-async function onSave(newNote: string) {
-  note.value = newNote
-}
-
 const emits = defineEmits<{
+  (e: 'viewBook', book: Book): void
   (e: 'updateBook', book: Book): void
   (e: 'deleteBook', book: Book): void
 }>()

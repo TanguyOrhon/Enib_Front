@@ -301,6 +301,18 @@ hr {
   @apply text-base text-gray-800;
 }
 
+.book-details-modal-card {
+  @apply max-w-150;
+}
+
+.book-details-header {
+  @apply text-gray-900;
+}
+
+.book-details-description {
+  @apply whitespace-pre-line text-base leading-relaxed text-gray-800;
+}
+
 @media (max-width: 768px) {
   .home {
     @apply mx-4;

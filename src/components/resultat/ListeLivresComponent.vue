@@ -13,6 +13,7 @@
         </div>
         <CardBookComponent
           :book="book"
+          @view-book="openBookDetails"
           @update-book="openBookModal"
           @delete-book="openDeleteModal"
         />
@@ -35,6 +36,11 @@
     />
     <EditModal ref="edit" @on-save="saveBookInList" />
     <DeleteBookModal ref="deleteModal" @deleted="deleteBookFromList" />
+    <BookDetailsModal
+      :book="selectedBook"
+      :is-open="isDetailsModalOpen"
+      @close="closeBookDetails"
+    />
   </div>
 </template>
 
@@ -49,6 +55,7 @@ import { Order } from '@/types/Order'
 import { FaceFrownIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import EditModal from '../EditModal.vue'
 import DeleteBookModal from '../DeleteBookModal.vue'
+import BookDetailsModal from '../BookDetailsModal.vue'
 
 const listbook = ref<Array<Book>>([])
 const isReady = ref<boolean>(false)
@@ -58,6 +65,8 @@ const currentPage = ref<number>(1)
 const totalPages = computed(() => Math.max(1, Math.ceil(listbook.value.length / itemsPerPage.value)))
 const edit = ref<null | InstanceType<typeof EditModal>>()
 const deleteModal = ref<null | InstanceType<typeof DeleteBookModal>>()
+const selectedBook = ref<Book | null>(null)
+const isDetailsModalOpen = ref<boolean>(false)
 
 const bookShown = computed(() =>
   listbook.value.slice(
@@ -90,6 +99,16 @@ function openBookModal(book: Book) {
 
 function openCreateModal() {
   edit.value?.openModal(null)
+}
+
+function openBookDetails(book: Book) {
+  selectedBook.value = book
+  isDetailsModalOpen.value = true
+}
+
+function closeBookDetails() {
+  isDetailsModalOpen.value = false
+  selectedBook.value = null
 }
 
 function openDeleteModal(book: Book) {
