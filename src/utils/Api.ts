@@ -67,7 +67,7 @@ export async function createBook(book: Book) {
   const resp = await axios.post(url, JSON.stringify(book), {
     headers: { 'Content-Type': 'application/json' }
   })
-  if (resp.status == 200) {
+  if (resp.status >= 200 && resp.status < 300) {
     return resp.data as Book
   } else {
     console.error('Erreur lors de la création du livre')
@@ -80,7 +80,7 @@ export async function updateBook(book: Book) {
   const resp = await axios.put(url, JSON.stringify(book), {
     headers: { 'Content-Type': 'application/json' }
   })
-  if (resp.status == 200) {
+  if (resp.status >= 200 && resp.status < 300) {
     return resp.data as Book
   } else {
     console.error('Erreur lors de la mise à jour du livre')

@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="add-book-wrapper">
+      <button class="add-book-button" @click="openCreateModal">Ajouter un livre</button>
+    </div>
     <div v-if="isReady && listbook.length > 0" class="list-wrapper">
       <div v-for="book in bookShown" :key="book.id" class="result-wrapper">
         <div class="select-wrapper">
@@ -15,7 +18,7 @@
       <p>Aucune référence ne coïncide avec votre recherche</p>
     </div>
     <PaginationComponent v-if="pageMax > 1" :page-max="pageMax" @change-page="changePage" />
-    <EditModal ref="edit" />
+    <EditModal ref="edit" @book-saved="loadBooks" />
   </div>
 </template>
 
@@ -60,6 +63,19 @@ function openBookModal(book: Book) {
   edit.value?.openModal(book)
 }
 
+function openCreateModal() {
+  edit.value?.openModal({
+    id: 0,
+    title: '',
+    author: '',
+    description: '',
+    genre: [],
+    releaseDate: '',
+    rating: 0,
+    sales: 0
+  })
+}
+
 async function loadBooksWithAuthor(author: string) {
   isReady.value = false
   const resp = await getBookdWithAuthor(author)
@@ -94,5 +110,5 @@ function sortList(column: Columns, order: Order) {
   page.value = 1
 }
 
-defineExpose({ sortList, loadBooksWithAuthor, loadBooks })
+defineExpose({ sortList, loadBooksWithAuthor, loadBooks, openCreateModal })
 </script>

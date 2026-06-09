@@ -54,6 +54,20 @@
                     <input v-model="book.releaseDate" type="date" class="input" />
                   </div>
                 </div>
+                <div class="row-2">
+                  <div class="infos-legend">Note</div>
+                  <div class="infos-value">
+                    <input v-model.number="book.rating" type="number" min="0" class="input" />
+                  </div>
+                </div>
+              </div>
+              <div class="infos-row">
+                <div class="row-2">
+                  <div class="infos-legend">Ventes</div>
+                  <div class="infos-value">
+                    <input v-model.number="book.sales" type="number" min="0" class="input" />
+                  </div>
+                </div>
               </div>
               <div class="infos-row">
                 <div class="row-full">
@@ -83,10 +97,12 @@ import { ref, defineExpose, computed } from 'vue'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import { Book } from '@/types/Book'
 import PillComponent from './commons/PillComponent.vue'
-import { generateId } from '@/utils/Methods'
 import { createBook, updateBook } from '@/utils/Api'
 
 const showModal = ref<boolean>(true)
+const emit = defineEmits<{
+  (e: 'book-saved'): void
+}>()
 
 function closeModal() {
   book.value = null
@@ -117,16 +133,18 @@ function deleteCategory(cat: string) {
 
 async function saveBook() {
   if (book.value) {
+    let savedBook: Book | null
+
     if (book.value.id != 0) {
-      //Update book
-      await updateBook(book.value)
+      savedBook = await updateBook(book.value)
     } else {
-      //Create book
-      book.value.id = generateId()
-      await createBook(book.value)
+      savedBook = await createBook(book.value)
     }
 
-    closeModal()
+    if (savedBook) {
+      closeModal()
+      emit('book-saved')
+    }
   }
 }
 

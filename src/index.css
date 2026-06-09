@@ -85,6 +85,14 @@ hr {
   @apply max-h-128 overflow-auto;
 }
 
+.add-book-wrapper {
+  @apply flex justify-end mt-3;
+}
+
+.add-book-button {
+  @apply px-4 py-2 text-white rounded-md bg-orange-enib hover:bg-orange-enib-light;
+}
+
 .result-wrapper {
   @apply flex flex-row my-5;
   .select-wrapper {
