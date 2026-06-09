@@ -198,7 +198,23 @@ hr {
 
 /* Pager */
 .pager-wrapper {
-  @apply flex justify-end text-gray-700;
+  @apply flex justify-between items-center mt-4 text-gray-700;
+}
+
+.page-size-wrapper {
+  @apply flex items-center gap-2;
+}
+
+.page-size-select {
+  @apply px-2 py-1 rounded-md bg-white text-gray-700 border border-gray-300;
+}
+
+.page-counter {
+  @apply font-bold;
+}
+
+.page-buttons {
+  @apply flex;
 }
 
 .icon-header-btn {
