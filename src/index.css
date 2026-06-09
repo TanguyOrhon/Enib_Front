@@ -46,15 +46,19 @@ hr {
 }
 
 .search-wrapper {
-  @apply mx-1 bg-gray-enib-light flex flex-row;
+  @apply mx-1 p-2 bg-gray-enib-light flex flex-wrap gap-2 rounded-md;
 }
 
 .search-input {
-  @apply basis-4/5 px-2 border-2 border-gray-300 rounded-md text-gray-600;
+  @apply flex-1 min-w-40 px-2 py-2 border-2 border-gray-300 rounded-md text-gray-600 bg-white;
 }
 
 .search-button {
-  @apply basis-1/5 mx-1 text-gray-200 rounded-md bg-rose-enib hover:bg-rose-enib-light cursor-pointer;
+  @apply px-4 py-2 text-gray-200 rounded-md bg-rose-enib hover:bg-rose-enib-light cursor-pointer;
+}
+
+.reset-search-button {
+  @apply px-4 py-2 text-gray-700 rounded-md bg-gray-300 hover:bg-gray-400 cursor-pointer;
 }
 
 .row-full {
@@ -115,11 +119,14 @@ hr {
   .date {
     @apply basis-3/5 flex justify-center;
   }
+  .book-categories {
+    @apply basis-3/5 flex flex-wrap justify-center items-center gap-1 px-1;
+  }
   .note {
     @apply basis-2/5 flex justify-center items-center;
   }
   .link {
-    @apply basis-1/5 flex justify-center gap-2;
+    @apply basis-2/5 flex justify-center gap-2;
     .icon {
       @apply w-6 h-6;
     }

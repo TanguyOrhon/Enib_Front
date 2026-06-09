@@ -10,6 +10,7 @@
         </div>
         <CardBookComponent
           :book="book"
+          @view-book="openDetailsModal"
           @update-book="openBookModal"
           @delete-book="openDeleteConfirmation"
         />
@@ -30,6 +31,7 @@
       @change-page-size="changePageSize"
     />
     <EditModal ref="edit" @book-saved="loadBooks" />
+    <BookModal :book="selectedBookDetails" @close="closeDetailsModal" />
     <DeleteConfirmationModal
       :book="bookToDelete"
       @cancel="cancelDelete"
@@ -41,22 +43,32 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { Book } from '@/types/Book'
-import { deleteBook, getBookdWithAuthor, getBooks } from '@/utils/Api'
+import { deleteBook, getBooks } from '@/utils/Api'
+import { BookFilters } from '@/types/BookFilters'
 import CardBookComponent from './CardBookComponent.vue'
 import PaginationComponent from './PaginationComponent.vue'
 import { Columns } from '@/types/Columns'
 import { Order } from '@/types/Order'
 import { FaceFrownIcon } from '@heroicons/vue/24/outline'
 import EditModal from '../EditModal.vue'
+import BookModal from '../BookModal.vue'
 import DeleteConfirmationModal from '../DeleteConfirmationModal.vue'
 
 const listbook = ref<Array<Book>>([])
+const allBooks = ref<Array<Book>>([])
 const isReady = ref<boolean>(false)
 const pageSize = ref<number>(20)
 const page = ref<number>(1)
 const pageMax = computed(() => Math.ceil(listbook.value.length / pageSize.value))
 const edit = ref<null | InstanceType<typeof EditModal>>()
+const selectedBookDetails = ref<Book | null>(null)
 const bookToDelete = ref<Book | null>(null)
+const activeFilters = ref<BookFilters>({
+  author: '',
+  title: '',
+  releaseDate: ''
+})
+const activeSort = ref<{ column: Columns; order: Order } | null>(null)
 
 const bookShown = computed(() =>
   listbook.value.slice(pageSize.value * (page.value - 1), pageSize.value * page.value)
@@ -72,7 +84,8 @@ const loadBooks = async () => {
   page.value = 1
   const resp = await getBooks()
   if (resp != null) {
-    listbook.value = resp
+    allBooks.value = resp
+    filterBooks()
   }
   isReady.value = true
   await nextTick()
@@ -95,6 +108,14 @@ function openCreateModal() {
   })
 }
 
+function openDetailsModal(book: Book) {
+  selectedBookDetails.value = book
+}
+
+function closeDetailsModal() {
+  selectedBookDetails.value = null
+}
+
 function openDeleteConfirmation(book: Book) {
   bookToDelete.value = book
 }
@@ -112,21 +133,39 @@ async function confirmDelete() {
   const isDeleted = await deleteBook(deletedBookId)
 
   if (isDeleted) {
-    listbook.value = listbook.value.filter((book) => book.id !== deletedBookId)
+    allBooks.value = allBooks.value.filter((book) => book.id !== deletedBookId)
+    filterBooks()
     page.value = Math.min(page.value, Math.max(pageMax.value, 1))
     bookToDelete.value = null
   }
 }
 
-async function loadBooksWithAuthor(author: string) {
-  isReady.value = false
-  page.value = 1
-  const resp = await getBookdWithAuthor(author)
-  if (resp != null) {
-    listbook.value = resp
+function applyFilters(filters: BookFilters) {
+  activeFilters.value = {
+    author: filters.author.trim(),
+    title: filters.title.trim(),
+    releaseDate: filters.releaseDate
   }
-  isReady.value = true
-  await nextTick()
+  page.value = 1
+  filterBooks()
+}
+
+function filterBooks() {
+  const author = activeFilters.value.author.toLocaleLowerCase()
+  const title = activeFilters.value.title.toLocaleLowerCase()
+  const releaseDate = activeFilters.value.releaseDate
+
+  listbook.value = allBooks.value.filter((book) => {
+    const matchesAuthor = !author || book.author.toLocaleLowerCase().includes(author)
+    const matchesTitle = !title || book.title.toLocaleLowerCase().includes(title)
+    const matchesDate = !releaseDate || book.releaseDate.slice(0, 10) === releaseDate
+
+    return matchesAuthor && matchesTitle && matchesDate
+  })
+
+  if (activeSort.value) {
+    sortBooks(activeSort.value.column, activeSort.value.order)
+  }
 }
 
 function changePage(newPage: number) {
@@ -139,6 +178,12 @@ function changePageSize(newPageSize: number) {
 }
 
 function sortList(column: Columns, order: Order) {
+  activeSort.value = { column, order }
+  sortBooks(column, order)
+  page.value = 1
+}
+
+function sortBooks(column: Columns, order: Order) {
   listbook.value = [...listbook.value].sort((a, b) => {
     let comparison = 0
 
@@ -154,9 +199,7 @@ function sortList(column: Columns, order: Order) {
 
     return order === Order.ASC ? comparison : -comparison
   })
-
-  page.value = 1
 }
 
-defineExpose({ sortList, loadBooksWithAuthor, loadBooks, openCreateModal })
+defineExpose({ sortList, applyFilters, loadBooks, openCreateModal })
 </script>
