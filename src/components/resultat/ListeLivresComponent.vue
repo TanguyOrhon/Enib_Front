@@ -1,5 +1,11 @@
 <template>
   <div>
+    <div class="list-actions">
+      <button class="create-book-button" type="button" @click="openCreateModal">
+        <PlusIcon class="create-book-icon" />
+        Ajouter un livre
+      </button>
+    </div>
     <div v-if="isReady && listbook.length > 0" class="list-wrapper">
       <div v-for="book in bookShown" :key="book.id" class="result-wrapper">
         <div class="select-wrapper">
@@ -15,7 +21,7 @@
       <p>Aucune référence ne coïncide avec votre recherche</p>
     </div>
     <PaginationComponent v-if="pageMax > 1" :page-max="pageMax" @change-page="changePage" />
-    <EditModal ref="edit" />
+    <EditModal ref="edit" @on-save="saveBookInList" />
   </div>
 </template>
 
@@ -27,7 +33,7 @@ import CardBookComponent from './CardBookComponent.vue'
 import PaginationComponent from './PaginationComponent.vue'
 import { Columns } from '@/types/Columns'
 import { Order } from '@/types/Order'
-import { FaceFrownIcon } from '@heroicons/vue/24/outline'
+import { FaceFrownIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import EditModal from '../EditModal.vue'
 
 const listbook = ref<Array<Book>>([])
@@ -41,9 +47,8 @@ const bookShown = computed(() =>
   listbook.value.slice(nb_book_shown.value * (page.value - 1), nb_book_shown.value * page.value)
 )
 
-onMounted(() => {
-  loadBooks()
-  isReady.value = true
+onMounted(async () => {
+  await loadBooks()
 })
 
 const loadBooks = async () => {
@@ -58,6 +63,21 @@ const loadBooks = async () => {
 
 function openBookModal(book: Book) {
   edit.value?.openModal(book)
+}
+
+function openCreateModal() {
+  edit.value?.openModal(null)
+}
+
+function saveBookInList(savedBook: Book) {
+  const bookIndex = listbook.value.findIndex((book) => book.id == savedBook.id)
+
+  if (bookIndex >= 0) {
+    listbook.value.splice(bookIndex, 1, savedBook)
+  } else {
+    listbook.value.unshift(savedBook)
+    page.value = 1
+  }
 }
 
 async function loadBooksWithAuthor(author: string) {

@@ -85,6 +85,18 @@ hr {
   @apply max-h-128 overflow-auto;
 }
 
+.list-actions {
+  @apply mt-4 mb-3 flex justify-end;
+}
+
+.create-book-button {
+  @apply inline-flex items-center gap-2 rounded-md bg-orange-enib px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-orange-enib-light disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.create-book-icon {
+  @apply h-5 w-5;
+}
+
 .result-wrapper {
   @apply flex flex-row my-5;
   .select-wrapper {
@@ -137,7 +149,7 @@ hr {
 }
 
 .modal-card {
-  @apply rounded-lg bg-white text-black w-140 p-5 shadow-xl;
+  @apply mx-4 max-h-[92vh] w-full max-w-140 rounded-lg bg-white p-5 text-black shadow-xl;
 }
 
 .modal-header {
@@ -149,7 +161,7 @@ hr {
 }
 
 .modal-footer {
-  @apply flex flex-row-reverse;
+  @apply flex flex-row-reverse gap-1;
 }
 
 .infos-wrapper {
@@ -169,11 +181,11 @@ hr {
 }
 
 .modal-button {
-  @apply mx-1 px-3 py-1 text-gray-200 rounded-md bg-rose-enib hover:bg-rose-enib-light cursor-pointer;
+  @apply mx-1 rounded-md bg-rose-enib px-3 py-1 text-gray-200 hover:bg-rose-enib-light disabled:cursor-not-allowed disabled:opacity-60;
 }
 
 .modal-button-success {
-  @apply mx-1 px-3 py-1 text-gray-200 rounded-md bg-orange-enib hover:bg-orange-enib-light cursor-pointer;
+  @apply mx-1 rounded-md bg-orange-enib px-3 py-1 text-gray-200 hover:bg-orange-enib-light disabled:cursor-not-allowed disabled:opacity-60;
 }
 
 .modal-button-delete {
@@ -235,11 +247,53 @@ hr {
 }
 
 .textarea {
-  @apply px-1 rounded-md bg-gray-300 w-full mx-1 text-base;
+  @apply min-h-24 px-1 rounded-md bg-gray-300 w-full mx-1 text-base;
 }
 
 .category-wrapper {
   @apply flex flex-row w-full;
+}
+
+.form-error {
+  @apply mx-1 mt-1 text-sm font-semibold text-red-600;
+}
+
+.form-error-global {
+  @apply rounded-md bg-red-50 p-2;
+}
+
+@media (max-width: 768px) {
+  .home {
+    @apply mx-4;
+  }
+
+  .header-list {
+    @apply text-sm;
+  }
+
+  .result-wrapper {
+    @apply my-3;
+  }
+
+  .card-wrapper {
+    @apply text-sm;
+  }
+
+  .modal-card {
+    @apply p-4;
+  }
+
+  .infos-row {
+    @apply flex-col gap-3;
+  }
+
+  .row-2 {
+    @apply basis-full;
+  }
+
+  .modal-footer {
+    @apply flex-col-reverse;
+  }
 }
 
 /* Scroll bars */
