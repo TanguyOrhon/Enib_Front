@@ -6,7 +6,7 @@
         Ajouter un livre
       </button>
     </div>
-    <div v-if="isReady && listbook.length > 0" class="list-wrapper">
+    <div v-if="isReady && filteredBooks.length > 0" class="list-wrapper">
       <div v-for="book in bookShown" :key="book.id" class="result-wrapper">
         <div class="select-wrapper">
           <input type="checkbox" class="select" />
@@ -19,7 +19,7 @@
         />
       </div>
     </div>
-    <div v-else-if="isReady && listbook.length < 1" class="nobook_msg">
+    <div v-else-if="isReady && filteredBooks.length < 1" class="nobook_msg">
       <div class="icon-wrapper">
         <FaceFrownIcon class="icons" />
       </div>
@@ -46,8 +46,10 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { Book } from '@/types/Book'
-import { getBookdWithAuthor, getBooks } from '@/utils/Api'
+import type { Book } from '@/types/Book'
+import type { BookFilters } from '@/types/BookFilters'
+import { getBooks } from '@/utils/Api'
+import { normalizeDateValue, normalizeSearchValue } from '@/utils/Methods'
 import CardBookComponent from './CardBookComponent.vue'
 import PaginationComponent from './PaginationComponent.vue'
 import { Columns } from '@/types/Columns'
@@ -62,18 +64,45 @@ const isReady = ref<boolean>(false)
 const itemsPerPageOptions = [20, 50, 100]
 const itemsPerPage = ref<number>(20)
 const currentPage = ref<number>(1)
-const totalPages = computed(() => Math.max(1, Math.ceil(listbook.value.length / itemsPerPage.value)))
+const titleSearch = ref<string>('')
+const authorSearch = ref<string>('')
+const releaseDateFilter = ref<string>('')
+const filteredBooks = computed(() => {
+  const normalizedTitleSearch = normalizeSearchValue(titleSearch.value)
+  const normalizedAuthorSearch = normalizeSearchValue(authorSearch.value)
+
+  return listbook.value.filter((book) => {
+    const matchesTitle =
+      normalizedTitleSearch == '' ||
+      normalizeSearchValue(book.title).includes(normalizedTitleSearch)
+    const matchesAuthor =
+      normalizedAuthorSearch == '' ||
+      normalizeSearchValue(book.author).includes(normalizedAuthorSearch)
+    const matchesReleaseDate =
+      releaseDateFilter.value == '' ||
+      normalizeDateValue(book.releaseDate) == releaseDateFilter.value
+
+    return matchesTitle && matchesAuthor && matchesReleaseDate
+  })
+})
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredBooks.value.length / itemsPerPage.value))
+)
 const edit = ref<null | InstanceType<typeof EditModal>>()
 const deleteModal = ref<null | InstanceType<typeof DeleteBookModal>>()
 const selectedBook = ref<Book | null>(null)
 const isDetailsModalOpen = ref<boolean>(false)
 
 const bookShown = computed(() =>
-  listbook.value.slice(
+  filteredBooks.value.slice(
     itemsPerPage.value * (currentPage.value - 1),
     itemsPerPage.value * currentPage.value
   )
 )
+
+watch([titleSearch, authorSearch, releaseDateFilter], () => {
+  currentPage.value = 1
+})
 
 watch([totalPages, currentPage], () => {
   keepCurrentPageValid()
@@ -132,14 +161,11 @@ function deleteBookFromList(deletedBook: Book) {
   keepCurrentPageValid()
 }
 
-async function loadBooksWithAuthor(author: string) {
-  isReady.value = false
-  const resp = await getBookdWithAuthor(author)
-  if (resp != null) {
-    listbook.value = resp
-  }
-  isReady.value = true
-  await nextTick()
+function setFilters(filters: BookFilters) {
+  titleSearch.value = filters.titleSearch
+  authorSearch.value = filters.authorSearch
+  releaseDateFilter.value = filters.releaseDateFilter
+  currentPage.value = 1
 }
 
 function changePage(newPage: number) {
@@ -180,5 +206,5 @@ function sortList(column: Columns, order: Order) {
   })
 }
 
-defineExpose({ sortList, loadBooksWithAuthor, loadBooks })
+defineExpose({ sortList, setFilters, loadBooks })
 </script>

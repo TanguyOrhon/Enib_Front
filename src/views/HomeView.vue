@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <SearchComponent />
+    <SearchComponent @filter-books="filterBooks" />
     <ResultatComponent ref="results" />
   </div>
 </template>
@@ -9,12 +9,11 @@
 import SearchComponent from '@/components/SearchComponent.vue'
 import ResultatComponent from '@/components/ResultatComponent.vue'
 import { ref } from 'vue'
+import type { BookFilters } from '@/types/BookFilters'
 
 const results = ref<null | InstanceType<typeof ResultatComponent>>()
 
-function search(author: string) {
-  results.value?.searchAuthor(author)
+function filterBooks(filters: BookFilters) {
+  results.value?.setFilters(filters)
 }
-
-search('')
 </script>
