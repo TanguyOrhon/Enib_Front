@@ -151,14 +151,14 @@ function applyFilters(filters: BookFilters) {
 }
 
 function filterBooks() {
-  const author = activeFilters.value.author.toLocaleLowerCase()
-  const title = activeFilters.value.title.toLocaleLowerCase()
+  const author = normalizeSearchValue(activeFilters.value.author)
+  const title = normalizeSearchValue(activeFilters.value.title)
   const releaseDate = activeFilters.value.releaseDate
 
   listbook.value = allBooks.value.filter((book) => {
-    const matchesAuthor = !author || book.author.toLocaleLowerCase().includes(author)
-    const matchesTitle = !title || book.title.toLocaleLowerCase().includes(title)
-    const matchesDate = !releaseDate || book.releaseDate.slice(0, 10) === releaseDate
+    const matchesAuthor = !author || normalizeSearchValue(book.author).includes(author)
+    const matchesTitle = !title || normalizeSearchValue(book.title).includes(title)
+    const matchesDate = !releaseDate || book.releaseDate?.slice(0, 10) === releaseDate
 
     return matchesAuthor && matchesTitle && matchesDate
   })
@@ -166,6 +166,15 @@ function filterBooks() {
   if (activeSort.value) {
     sortBooks(activeSort.value.column, activeSort.value.order)
   }
+}
+
+function normalizeSearchValue(value?: string) {
+  return (value ?? '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('fr')
 }
 
 function changePage(newPage: number) {

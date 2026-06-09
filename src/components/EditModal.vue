@@ -107,6 +107,7 @@ const emit = defineEmits<{
 
 function closeModal() {
   book.value = null
+  newGenre.value = ''
   showModal.value = false
 }
 
@@ -151,6 +152,12 @@ async function saveBook() {
 
 function openModal(newBook: Book | null) {
   book.value = newBook
+    ? {
+        ...newBook,
+        genre: [...newBook.genre]
+      }
+    : null
+  newGenre.value = ''
   showModal.value = true
 }
 
