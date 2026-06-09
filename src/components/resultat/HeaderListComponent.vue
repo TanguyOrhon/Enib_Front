@@ -7,6 +7,7 @@
       </OrderableHeader>
     </div>
     <div class="md">Auteur</div>
+    <div class="md">CatÃ©gorie</div>
     <div class="md">
       <OrderableHeader ref="date" :column="Columns.DATE" @order-list="changeOrder">
         Date de sortie

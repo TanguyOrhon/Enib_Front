@@ -97,12 +97,15 @@ hr {
 
 /* Card Book */
 .card-wrapper {
-  @apply flex flex-row w-full py-2 shadow-md rounded-lg bg-white text-black;
+  @apply flex flex-row w-full py-2 shadow-md rounded-lg bg-white text-black items-center;
   .title {
     @apply basis-2/5 flex justify-center;
   }
   .author {
     @apply basis-3/5 flex justify-center;
+  }
+  .categories {
+    @apply basis-3/5 flex justify-center flex-wrap gap-2 px-2;
   }
   .date {
     @apply basis-3/5 flex justify-center;
@@ -234,7 +237,7 @@ hr {
 }
 
 .pill-wrapper {
-  @apply rounded text-base text-gray-100 px-2 rounded-full bg-orange-enib-light hover:cursor-pointer;
+  @apply rounded text-base text-gray-100 px-2 rounded-full hover:cursor-pointer;
 }
 
 .pills-wrapper {

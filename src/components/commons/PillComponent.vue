@@ -7,7 +7,18 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
+const props = defineProps<{
+  category: string
+}>()
+
 const activeColor = computed(() => {
-  return '#29B6F6'
+  let hash = 0
+  const categoryName = props.category.toLowerCase()
+  for (let i = 0; i < categoryName.length; i++) {
+    hash = categoryName.charCodeAt(i) + ((hash << 5) - hash)
+  }
+
+  const hue = Math.abs(hash) % 360
+  return `hsl(${hue}, 65%, 45%)`
 })
 </script>
