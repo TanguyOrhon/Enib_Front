@@ -1,6 +1,6 @@
 <template>
-  <div v-if="showModal && book != undefined" class="modal">
-    <div class="wrapper">
+  <div v-if="showModal && editableBook != undefined" class="modal">
+    <div class="wrapper" @click.self="cancelEdit">
       <div class="modal-card-wrapper">
         <div class="modal-card">
           <div class="modal-header">
@@ -14,14 +14,14 @@
                   <div class="row-2">
                     <div class="infos-legend">Titre</div>
                     <div class="infos-value">
-                      <input v-model.trim="book.title" class="input" type="text" />
+                      <input v-model.trim="editableBook.title" class="input" type="text" />
                     </div>
                     <p v-if="errors.title" class="form-error">{{ errors.title }}</p>
                   </div>
                   <div class="row-2">
                     <div class="infos-legend">Auteur</div>
                     <div class="infos-value">
-                      <input v-model.trim="book.author" class="input" type="text" />
+                      <input v-model.trim="editableBook.author" class="input" type="text" />
                     </div>
                     <p v-if="errors.author" class="form-error">{{ errors.author }}</p>
                   </div>
@@ -42,7 +42,7 @@
                   <div class="row-2">
                     <div class="pills-wrapper">
                       <PillComponent
-                        v-for="cat in book.genre"
+                        v-for="cat in editableBook.genre"
                         :key="cat"
                         :category="cat"
                         @click="deleteCategory(cat)"
@@ -56,7 +56,7 @@
                   <div class="row-2">
                     <div class="infos-legend">Date de sortie</div>
                     <div class="infos-value">
-                      <input v-model="book.releaseDate" type="date" class="input" />
+                      <input v-model="editableBook.releaseDate" type="date" class="input" />
                     </div>
                     <p v-if="errors.releaseDate" class="form-error">{{ errors.releaseDate }}</p>
                   </div>
@@ -65,7 +65,7 @@
                   <div class="row-full">
                     <div class="infos-legend">Description</div>
                     <div class="infos-value">
-                      <textarea v-model.trim="book.description" class="textarea" />
+                      <textarea v-model.trim="editableBook.description" class="textarea" />
                     </div>
                     <p v-if="errors.description" class="form-error">{{ errors.description }}</p>
                   </div>
@@ -78,7 +78,7 @@
               <button class="modal-button-success" type="submit" :disabled="isSaving">
                 {{ isSaving ? 'Enregistrement...' : 'Valider' }}
               </button>
-              <button class="modal-button" type="button" :disabled="isSaving" @click="closeModal">
+              <button class="modal-button" type="button" :disabled="isSaving" @click="cancelEdit">
                 Annuler
               </button>
             </div>
@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRaw } from 'vue'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import { Book } from '@/types/Book'
 import PillComponent from './commons/PillComponent.vue'
@@ -107,42 +107,60 @@ const emit = defineEmits<{
 
 const showModal = ref<boolean>(false)
 const isSaving = ref<boolean>(false)
-const book = ref<Book | null>()
+const editableBook = ref<Book | null>(null)
 const newGenre = ref('')
 const errors = ref<FormErrors>({})
 
-const title = computed(() => (book.value?.id != 0 ? 'Modification du livre' : "Création d'un livre"))
+const title = computed(() =>
+  editableBook.value?.id != 0 ? 'Modification du livre' : "Création d'un livre"
+)
 
-function closeModal() {
-  book.value = null
+onMounted(() => {
+  window.addEventListener('keydown', closeOnEscape)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', closeOnEscape)
+})
+
+function resetModalState() {
+  editableBook.value = null
   newGenre.value = ''
   errors.value = {}
   isSaving.value = false
   showModal.value = false
 }
 
+function cancelEdit() {
+  if (isSaving.value) {
+    return
+  }
+
+  resetModalState()
+}
+
 function addGenre() {
   const genre = newGenre.value.trim()
 
-  if (genre != '' && book.value && !book.value.genre.includes(genre)) {
-    book.value.genre.push(genre)
+  if (genre != '' && editableBook.value && !editableBook.value.genre.includes(genre)) {
+    editableBook.value.genre.push(genre)
     newGenre.value = ''
     errors.value = { ...errors.value, genre: undefined }
   }
 }
 
 function deleteCategory(cat: string) {
-  if (book.value) {
-    book.value.genre = book.value.genre.filter((genre) => cat !== genre)
+  if (editableBook.value) {
+    editableBook.value.genre = editableBook.value.genre.filter((genre) => cat !== genre)
   }
 }
 
 async function saveBook() {
-  if (!book.value) {
+  if (!editableBook.value) {
     return
   }
 
-  const validationErrors = validateBook(book.value)
+  const validationErrors = validateBook(editableBook.value)
   errors.value = validationErrors
   if (Object.keys(validationErrors).length > 0) {
     return
@@ -150,7 +168,7 @@ async function saveBook() {
 
   isSaving.value = true
   try {
-    const payload = sanitizeBook(book.value)
+    const payload = sanitizeBook(editableBook.value)
     const savedBook =
       payload.id != 0 ? await updateBook(payload) : await createBook({ ...payload, id: generateId() })
 
@@ -160,7 +178,7 @@ async function saveBook() {
     }
 
     emit('onSave', normalizeBook(savedBook))
-    closeModal()
+    resetModalState()
   } catch (error) {
     errors.value = { form: getErrorMessage(error) }
   } finally {
@@ -169,7 +187,7 @@ async function saveBook() {
 }
 
 function openModal(newBook: Book | null = null) {
-  book.value = newBook ? cloneBook(newBook) : createEmptyBook()
+  editableBook.value = newBook ? cloneBookForEditing(newBook) : createEmptyBook()
   newGenre.value = ''
   errors.value = {}
   isSaving.value = false
@@ -189,10 +207,20 @@ function createEmptyBook(): Book {
   }
 }
 
-function cloneBook(bookToClone: Book): Book {
-  return {
-    ...bookToClone,
-    genre: [...bookToClone.genre]
+function cloneBookForEditing(bookToClone: Book): Book {
+  const rawBook = toRaw(bookToClone)
+
+  try {
+    const clonedBook = structuredClone(rawBook)
+    return {
+      ...clonedBook,
+      genre: [...(clonedBook.genre ?? [])]
+    }
+  } catch {
+    return {
+      ...rawBook,
+      genre: [...(rawBook.genre ?? [])]
+    }
   }
 }
 
@@ -246,5 +274,11 @@ function getErrorMessage(error: unknown) {
   }
 
   return "Une erreur est survenue lors de l'enregistrement."
+}
+
+function closeOnEscape(event: KeyboardEvent) {
+  if (event.key == 'Escape' && showModal.value) {
+    cancelEdit()
+  }
 }
 </script>
