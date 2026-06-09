@@ -10,6 +10,9 @@
     <div class="date">{{ releaseYear }}</div>
     <div class="note">{{ note }} <StarIcon v-if="book.rating" class="icons" /></div>
     <div class="link">
+      <button @click="showBookDetails">
+        <EyeIcon class="icon" />
+      </button>
       <button @click="updateBook">
         <PencilIcon class="icon" />
       </button>
@@ -25,7 +28,7 @@
 import { Book } from '@/types/Book'
 import { computed, ref, useTemplateRef } from 'vue'
 import BookModal from '../BookModal.vue'
-import { PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
+import { EyeIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import { StarIcon } from '@heroicons/vue/24/outline'
 import { noteTo3Dec } from '@/utils/Methods'
 import PillComponent from '../commons/PillComponent.vue'
@@ -38,6 +41,10 @@ const showDetails = ref<boolean>(true)
 const modal = useTemplateRef('modal')
 const note = ref<string>(props.book.rating != undefined ? noteTo3Dec(props.book.rating) : 'NN')
 const releaseYear = computed(() => new Date(props.book.releaseDate).getFullYear())
+
+function showBookDetails() {
+  modal.value?.openModal(props.book.id)
+}
 
 function updateBook() {
   emits('updateBook', props.book)
