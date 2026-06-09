@@ -44,6 +44,7 @@
                       <PillComponent
                         v-for="cat in book.genre"
                         :key="cat"
+                        :category="cat"
                         @click="deleteCategory(cat)"
                       >
                         {{ cat }}

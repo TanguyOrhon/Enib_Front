@@ -12,6 +12,7 @@
         Date de sortie
       </OrderableHeader>
     </div>
+    <div class="md">Catégories</div>
     <div class="sm">Note</div>
     <div class="xs"></div>
   </div>

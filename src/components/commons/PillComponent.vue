@@ -1,13 +1,18 @@
 <template>
-  <div class="pill-wrapper" :style="{ backgroundColor: activeColor }">
+  <div class="pill-wrapper" :style="categoryStyle">
     <slot></slot>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { getCategoryColor } from '@/utils/CategoryColors'
 
-const activeColor = computed(() => {
-  return '#29B6F6'
+const props = defineProps<{
+  category?: string
+}>()
+
+const categoryStyle = computed(() => {
+  return getCategoryColor(props.category)
 })
 </script>

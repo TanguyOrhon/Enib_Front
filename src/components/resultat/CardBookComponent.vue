@@ -3,6 +3,11 @@
     <div class="title">{{ book.title }}</div>
     <div class="author">{{ book.author }}</div>
     <div class="date">{{ book.releaseDate }}</div>
+    <div class="categories">
+      <PillComponent v-for="cat in book.genre" :key="cat" :category="cat">
+        {{ cat }}
+      </PillComponent>
+    </div>
     <div class="note">{{ note }} <StarIcon v-if="book.rating" class="icons" /></div>
     <div class="link">
       <button type="button" aria-label="Modifier le livre" @click="updateBook">
@@ -28,6 +33,7 @@ import BookModal from '../BookModal.vue'
 import { PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import { StarIcon } from '@heroicons/vue/24/outline'
 import { noteTo3Dec } from '@/utils/Methods'
+import PillComponent from '../commons/PillComponent.vue'
 
 const props = defineProps<{
   book: Book

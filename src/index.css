@@ -119,6 +119,9 @@ hr {
   .date {
     @apply basis-3/5 flex justify-center;
   }
+  .categories {
+    @apply basis-3/5 flex flex-wrap justify-center gap-1 px-2;
+  }
   .note {
     @apply basis-2/5 flex justify-center items-center;
   }
@@ -250,7 +253,7 @@ hr {
 }
 
 .pill-wrapper {
-  @apply rounded text-base text-gray-100 px-2 rounded-full bg-orange-enib-light hover:cursor-pointer;
+  @apply rounded-full px-2 text-sm font-semibold shadow-sm hover:cursor-pointer;
 }
 
 .pills-wrapper {
