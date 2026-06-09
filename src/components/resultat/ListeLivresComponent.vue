@@ -8,7 +8,11 @@
         <div class="select-wrapper">
           <input type="checkbox" class="select" />
         </div>
-        <CardBookComponent :book="book" @update-book="openBookModal" />
+        <CardBookComponent
+          :book="book"
+          @update-book="openBookModal"
+          @delete-book="openDeleteModal"
+        />
       </div>
     </div>
     <div v-else-if="isReady && listbook.length < 1" class="nobook_msg">
@@ -26,6 +30,7 @@
       @change-page-size="changePageSize"
     />
     <EditModal ref="edit" @book-saved="onBookSaved" />
+    <DeleteConfirmModal ref="deleteModal" @book-deleted="onBookDeleted" />
   </div>
 </template>
 
@@ -39,6 +44,7 @@ import { Columns } from '@/types/Columns'
 import { Order } from '@/types/Order'
 import { FaceFrownIcon } from '@heroicons/vue/24/outline'
 import EditModal from '../EditModal.vue'
+import DeleteConfirmModal from '../DeleteConfirmModal.vue'
 
 const listbook = ref<Array<Book>>([])
 const isReady = ref<boolean>(false)
@@ -46,6 +52,7 @@ const nb_book_shown = ref<number>(20)
 const page = ref<number>(1)
 const pageMax = computed(() => Math.max(1, Math.ceil(listbook.value.length / nb_book_shown.value)))
 const edit = ref<null | InstanceType<typeof EditModal>>()
+const deleteModal = ref<null | InstanceType<typeof DeleteConfirmModal>>()
 
 const bookShown = computed(() =>
   listbook.value.slice(nb_book_shown.value * (page.value - 1), nb_book_shown.value * page.value)
@@ -75,9 +82,20 @@ function openCreateModal() {
   edit.value?.openModal(null)
 }
 
+function openDeleteModal(book: Book) {
+  deleteModal.value?.openModal(book)
+}
+
 async function onBookSaved(savedBook: Book) {
   page.value = 1
   await loadBooks()
+}
+
+function onBookDeleted(deletedBook: Book) {
+  listbook.value = listbook.value.filter((book) => book.id !== deletedBook.id)
+  if (page.value > pageMax.value) {
+    page.value = pageMax.value
+  }
 }
 
 async function loadBooksWithAuthor(author: string) {

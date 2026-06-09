@@ -8,6 +8,9 @@
       <button @click="updateBook">
         <PencilIcon class="icon" />
       </button>
+      <button @click="deleteBook">
+        <TrashIcon class="icon delete-icon" />
+      </button>
     </div>
     <BookModal v-if="showDetails" ref="modal" @on-save="onSave" />
   </div>
@@ -17,7 +20,7 @@
 import { Book } from '@/types/Book'
 import { ref, useTemplateRef } from 'vue'
 import BookModal from '../BookModal.vue'
-import { PencilIcon } from '@heroicons/vue/24/solid'
+import { PencilIcon, TrashIcon } from '@heroicons/vue/24/solid'
 import { StarIcon } from '@heroicons/vue/24/outline'
 import { noteTo3Dec } from '@/utils/Methods'
 
@@ -33,11 +36,16 @@ function updateBook() {
   emits('updateBook', props.book)
 }
 
+function deleteBook() {
+  emits('deleteBook', props.book)
+}
+
 async function onSave(newNote: string) {
   note.value = newNote
 }
 
 const emits = defineEmits<{
   (e: 'updateBook', book: Book): void
+  (e: 'deleteBook', book: Book): void
 }>()
 </script>

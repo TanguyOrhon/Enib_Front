@@ -111,11 +111,15 @@ hr {
     @apply basis-2/5 flex justify-center items-center;
   }
   .link {
-    @apply basis-1/5 flex justify-center;
+    @apply basis-1/5 flex justify-center gap-2;
     .icon {
       @apply w-6 h-6;
     }
   }
+}
+
+.delete-icon {
+  @apply text-red-600 hover:text-red-500;
 }
 
 .icons {
@@ -166,6 +170,10 @@ hr {
 
 .infos-value {
   @apply text-lg flex flex-row items-center;
+}
+
+.confirm-message {
+  @apply text-lg text-gray-700 py-4;
 }
 
 .modal-button {
